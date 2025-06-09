@@ -1,86 +1,65 @@
-<%-- 
-    Document   : PushNotifyAction
-    Created on : 4 Apr, 2021, 3:06:32 PM
-    Author     : KishanVenky
---%>
-
 <%@page import="java.sql.ResultSet"%>
 <%@page import="com.database.Queries"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
-try{
-    String  username=(String)session.getAttribute("username");
-  String pid=request.getParameter("pid");
-    String uid=request.getParameter("uid");
-    String content=request.getParameter("content");
-    ResultSet rr1=Queries.getExecuteQuery("select count(*) from notification where uid='"+uid+"'and pid='"+pid+"'");
-   int cc=0;
-    while(rr1.next()){
-         cc=rr1.getInt(1);
+try {
+    String username = (String) session.getAttribute("username");
+    String pid = request.getParameter("pid");
+    String uid = request.getParameter("uid");
+    String content = request.getParameter("content");
+
+    if (username == null || uid == null || pid == null || content == null || content.trim().isEmpty()) {
+%>
+    <script type="text/javascript">
+        alert("Missing required fields.");
+        window.location = "A_PushNotification.jsp";
+    </script>
+<%
+        return;
     }
-    if(cc!=0){
-    ResultSet r=Queries.getExecuteQuery("select * from notification where uid='"+uid+"'and pid='"+pid+"'");
-    if(r.next()){
-        String status=r.getString("status");
-        if(status.equals("Block")){
-             int i=Queries.getExecuteUpdate("insert into notification values(null,'"+username+"','"+uid+"','"+pid+"','"+content+"','Block')");
-    if(i>0){   
-        %>
-        <script type="text/javascript">
-            window.alert("Sent Successfully...!!");
-            window.location="PushNotifyAction.jsp";
-        </script>  
-        <%
-    }else{
- %>
-        <script type="text/javascript">
-            window.alert("Sending Failed...!!");
-            window.location="PushNotifyAction.jsp";
-        </script>  
-        <%
-}
-}else{
-int i=Queries.getExecuteUpdate("insert into notification values(null,'"+username+"','"+uid+"','"+pid+"','"+content+"','waiting')");
-    if(i>0){
-        %>
-        <script type="text/javascript">
-            window.alert("Sent Successfully...!!");
-            window.location="PushNotifyAction.jsp";
-        </script>  
-        <%
-    }else{
- %>
-        <script type="text/javascript">
-            window.alert("Sending Failed...!!");
-            window.location="PushNotifyAction.jsp";
-        </script>  
-        <%
-}
-}  
-}
-}else{
-int i=Queries.getExecuteUpdate("insert into notification values(null,'"+username+"','"+uid+"','"+pid+"','"+content+"','waiting')");
-    if(i>0){
-        %>
-        <script type="text/javascript">
-            window.alert("Sent Successfully...!!");
-            window.location="PushNotifyAction.jsp";
-        </script>  
-        <%
-    }else{
- %>
-        <script type="text/javascript">
-            window.alert("Sending Failed...!!");
-            window.location="PushNotifyAction.jsp";
-        </script>  
-        <%
-}
-}
-    
-}catch(Exception e){
-   out.println(e); 
-}
 
+    ResultSet rr1 = Queries.getExecuteQuery("SELECT COUNT(*) FROM notification WHERE uid='" + uid + "' AND pid='" + pid + "'");
+    int cc = 0;
 
+    if (rr1 != null && rr1.next()) {
+        cc = rr1.getInt(1);
+    }
 
+    boolean success = false;
+
+    if (cc != 0) {
+        ResultSet r = Queries.getExecuteQuery("SELECT * FROM notification WHERE uid='" + uid + "' AND pid='" + pid + "'");
+        if (r != null && r.next()) {
+            String status = r.getString("status");
+            String finalStatus = status.equalsIgnoreCase("Block") ? "Block" : "waiting";
+
+            success = Queries.getExecuteUpdate(
+                "INSERT INTO notification VALUES (NULL, '" + username + "', '" + uid + "', '" + pid + "', '" + content + "', '" + finalStatus + "')"
+            ) > 0;
+        }
+    } else {
+        success = Queries.getExecuteUpdate(
+            "INSERT INTO notification VALUES (NULL, '" + username + "', '" + uid + "', '" + pid + "', '" + content + "', 'waiting')"
+        ) > 0;
+    }
+
+    if (success) {
+%>
+    <script type="text/javascript">
+        alert("Notification sent successfully!");
+        window.location = "A_PushNotification.jsp";
+    </script>
+<%
+    } else {
+%>
+    <script type="text/javascript">
+        alert("Failed to send notification.");
+        window.location = "A_PushNotification.jsp";
+    </script>
+<%
+    }
+
+} catch (Exception e) {
+    out.println("Error: " + e.getMessage());
+}
 %>

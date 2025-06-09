@@ -20,9 +20,13 @@ try{
     
   String query="select count(*) from user where email='"+email+"'and mobile='"+mobile+"'";
        ResultSet r=Queries.getExecuteQuery(query);
-       while(r.next()){
-     count=r.getInt(1);   
-       }
+      if (r != null) {
+    while (r.next()) {
+        count = r.getInt(1);   
+    }
+} else {
+    out.println("Error: Could not execute query or connect to database.");
+}
        if(count==0){
          int i=Queries.getExecuteUpdate("insert into user values(null,'"+name+"','"+email+"','"+mobile+"','"+address+"','"+uname+"','"+pwd+"')");
          if(i>0){

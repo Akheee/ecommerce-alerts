@@ -16,7 +16,7 @@
 <%
     String username = (String) session.getAttribute("username");
     if (username == null) {
-        response.sendRedirect("login.jsp"); // or your login page
+        response.sendRedirect("login.jsp");
         return;
     }
 %>
@@ -62,7 +62,8 @@
                                     "FROM pcount c JOIN products p ON p.id = c.pid " +
                                     "WHERE c.pcount >= 3 AND c.category = '" + username + "'"
                                 );
-                                while (r.next()) {
+                                if (r != null) {
+                                    while (r.next()) {
                         %>
                         <tr>
                             <td><%= r.getString("category") %></td>
@@ -71,7 +72,10 @@
                             <td><%= r.getString("description") %></td>
                             <td><img src="view.jsp?id=<%= r.getString("id") %>" width="100" height="100" /></td>
                         </tr>
-                        <% 
+                        <%
+                                    }
+                                } else {
+                                    out.println("<tr><td colspan='5'>No data — database query failed.</td></tr>");
                                 }
                             } catch (Exception e) {
                                 out.println("Error: " + e.getMessage());
@@ -96,14 +100,18 @@
                                                 ResultSet r = Queries.getExecuteQuery(
                                                     "SELECT DISTINCT uid, username, pid FROM pcount WHERE pcount >= 3 AND category = '" + username + "'"
                                                 );
-                                                while (r.next()) {
-                                                    String pid = r.getString("pid");
-                                                    String uid = r.getString("uid");
-                                                    String uname = r.getString("username");
+                                                if (r != null) {
+                                                    while (r.next()) {
+                                                        String pid = r.getString("pid");
+                                                        String uid = r.getString("uid");
+                                                        String uname = r.getString("username");
+                                                        session.setAttribute("pid_" + uid, pid);
                                         %>
                                         <option value="<%= uid %>"><%= uname %></option>
                                         <%
-                                                    session.setAttribute("pid_" + uid, pid);
+                                                    }
+                                                } else {
+                                                    out.println("<option disabled>Database error</option>");
                                                 }
                                             } catch (Exception e) {
                                                 out.println("Error: " + e.getMessage());

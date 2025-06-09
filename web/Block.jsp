@@ -1,45 +1,38 @@
-<%-- 
-    Document   : OwnerRegAction
-    Created on : 29 Sep, 2020, 5:52:17 PM
-    Author     : KishanVenky
---%>
-
-<%@page import="java.sql.ResultSet"%>
 <%@page import="com.database.Queries"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <%
-try{
+try {
+    String id = request.getParameter("id");
 
-   
-   
-    String id=request.getParameter("id");
-    
-    String query="update notification set status='Block' where id='"+id+"'";
-    int i=Queries.getExecuteUpdate(query);
-    if(i>0){
-     
+    if (id != null && !id.trim().isEmpty()) {
+        String query = "UPDATE notification SET status='Block' WHERE id='" + id + "'";
+        int i = Queries.getExecuteUpdate(query);
+
+        if (i > 0) {
 %>
-      <script type='text/javascript'>
-          window.alert("Done");
-          window.location="Notification.jsp";
-      </script>
-      <%
-
-    
-}else{
-    
+<script type='text/javascript'>
+    window.alert("Notification blocked successfully!");
+    window.location = "Notification.jsp";
+</script>
+<%
+        } else {
 %>
-      <script type='text/javascript'>
-          window.alert(" Failed..!!");
-          window.location="Notification.jsp";
-      </script>
-      <%
+<script type='text/javascript'>
+    window.alert("Update failed.");
+    window.location = "Notification.jsp";
+</script>
+<%
+        }
+    } else {
+%>
+<script type='text/javascript'>
+    window.alert("Invalid ID provided.");
+    window.location = "Notification.jsp";
+</script>
+<%
+    }
+} catch (Exception e) {
+    out.println("Error: " + e.getMessage());
 }
-}catch(Exception e){
-    out.println(e);
-}
-
-
-
 %>

@@ -10,8 +10,8 @@ public class Queries {
             Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection(
                 "jdbc:mysql://sql12.freesqldatabase.com:3306/sql12783778",
-  "sql12783778",
-  "SCazHR9SlQ"
+            "sql12783778",
+            "SCazHR9SlQ"
             );
         } catch (Exception e) {
             e.printStackTrace();
@@ -19,17 +19,21 @@ public class Queries {
         return con;
     }
 
-    public static ResultSet getExecuteQuery(String query) {
-        ResultSet rs = null;
-        try {
-            Connection con = getConnection();
+   public static ResultSet getExecuteQuery(String query) {
+    ResultSet rs = null;
+    try {
+        Connection con = getConnection();
+        if (con != null) {
             Statement st = con.createStatement();
             rs = st.executeQuery(query);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } else {
+            System.out.println("ERROR: Connection is null.");
         }
-        return rs;
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    return rs;
+}
 
     // ✅ Add this method:
     public static int getExecuteUpdate(String query) {

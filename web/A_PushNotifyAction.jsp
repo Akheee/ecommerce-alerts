@@ -19,23 +19,22 @@ try {
         return;
     }
 
-    // Check if a notification already exists
+    int cc = 0;
+    boolean success = false;
+
     ResultSet rr1 = Queries.getExecuteQuery(
         "SELECT COUNT(*) FROM notification WHERE uid='" + uid + "' AND pid='" + pid + "'"
     );
-    int cc = 0;
-    if (rr1.next()) {
+
+    if (rr1 != null && rr1.next()) {
         cc = rr1.getInt(1);
     }
 
-    boolean success = false;
-
     if (cc != 0) {
-        // Notification already exists, check status
         ResultSet r = Queries.getExecuteQuery(
             "SELECT * FROM notification WHERE uid='" + uid + "' AND pid='" + pid + "'"
         );
-        if (r.next()) {
+        if (r != null && r.next()) {
             String status = r.getString("status");
             String newStatus = status.equalsIgnoreCase("Block") ? "Block" : "waiting";
 
